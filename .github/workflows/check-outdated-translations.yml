@@ -1,15 +1,21 @@
 name: Check Outdated Translations
 
 on:
-  issues:
-    types: [opened]
+  repository_dispatch:
+    types: [docs_updated]  # This will be triggered by core-docs-test
 
 jobs:
-  check_translations:
+  create-issue:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Check for outdated translations
-        run: echo "A new documentation update requires translation updates."
+      - name: Create an issue about outdated translations
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.create({
+              owner: 'Ruchit-kumar44',
+              repo: 'test-p5.js-website',
+              title: '🚨 Documentation Updated – Translation Needed!',
+              body: 'The documentation has changed in core-docs-test. Please update translations accordingly.\n\n✅ **Action Required:** Review and update translations in `/reference`.',
+            });
