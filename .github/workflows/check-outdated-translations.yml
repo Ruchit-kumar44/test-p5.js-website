@@ -1,0 +1,15 @@
+name: Check Outdated Translations
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  check_translations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Check for outdated translations
+        run: echo "A new documentation update requires translation updates."

@@ -1,0 +1,10 @@
+{
+    "function": "drawCircle",
+    "description": "Cette fonction dessine un cercle.",
+    "params": [
+      {"name": "x", "description": "La coordonnée x."},
+      {"name": "y", "description": "La coordonnée y."},
+      {"name": "radius", "description": "Le rayon du cercle."}
+    ]
+  }
+  
