@@ -18,3 +18,7 @@ This function is essential for creating animations and dynamic sketches.
 You can use `frameRate(fps)` inside `setup()` to control how fast `draw()` executes.  
 By default, `draw()` runs at 60 frames per second (fps), but you can adjust this based on your needs.  
 For example, `frameRate(30)` reduces the speed by half.
+
+### Using background() in draw()  
+It is recommended to use `background(color)` inside `draw()` to clear the previous frame.  
+If you don’t use `background()`, the shapes drawn in each frame will accumulate, creating a trail effect.
