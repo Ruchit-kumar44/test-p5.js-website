@@ -11,6 +11,10 @@ on:
       - "src/content/reference/en/**"  # Runs when a PR modifies English docs
   workflow_dispatch:  # Allows manual trigger
 
+permissions:  # ✅ Add this block to grant issue write permissions
+ contents: read
+ issues: write  # ✅ This allows the Action to create issues
+
 jobs:
   check_translations:
     runs-on: ubuntu-latest
