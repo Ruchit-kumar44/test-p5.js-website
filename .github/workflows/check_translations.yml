@@ -1,0 +1,36 @@
+name: Check Missing or Outdated Translations
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/content/reference/en/**"  # Runs only when English docs change
+  pull_request:
+    paths:
+      - "src/content/reference/en/**"  # Runs when a PR modifies English docs
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  check_translations:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Run translation check script
+        run: node .github/scripts/check_translations.js
+
+      - name: Create GitHub issue if translations are outdated or missing
+        if: failure() # Runs only if previous step fails
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "⚠️ Outdated/Missing Translations Detected"
+          content-filepath: .github/scripts/outdated_translations.md
+          labels: "translation, help wanted"
