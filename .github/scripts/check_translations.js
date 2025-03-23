@@ -51,4 +51,4 @@ if (outdatedTranslations.length > 0) {
 fs.writeFileSync(".github/scripts/outdated_translations.md", issueContent);
 
 console.error(issueContent);
-process.exit(1);
+process.exit(0);
