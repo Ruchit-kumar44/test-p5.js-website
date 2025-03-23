@@ -5,15 +5,11 @@ on:
     branches:
       - main
     paths:
-      - "src/content/reference/en/**"  # Runs only when English docs change
+      - "src/content/reference/en/**"
   pull_request:
     paths:
-      - "src/content/reference/en/**"  # Runs when a PR modifies English docs
+      - "src/content/reference/en/**"
   workflow_dispatch:  # Allows manual trigger
-
-permissions:  # ✅ Add this block to grant issue write permissions
- contents: read
- issues: write  # ✅ This allows the Action to create issues
 
 jobs:
   check_translations:
@@ -23,16 +19,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Run translation check script
         run: node .github/scripts/check_translations.js
 
       - name: Create GitHub issue if translations are outdated or missing
-        if: failure() # Runs only if previous step fails
+        if: always()  # 🔹 Ensures issue creation even if script exits with 0
         uses: peter-evans/create-issue-from-file@v5
         with:
           title: "⚠️ Outdated/Missing Translations Detected"

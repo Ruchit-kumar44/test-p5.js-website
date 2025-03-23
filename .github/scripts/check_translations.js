@@ -1,54 +1,63 @@
 const fs = require("fs");
 const path = require("path");
 
-const ENGLISH_DIR = "src/content/reference/en";
-const LANGUAGES = ["es", "ko"]; // Add other languages if needed
-
-const missingTranslations = [];
+const referencePath = "src/content/reference";
+const languages = ["es", "ko"]; // Add other languages as needed
 const outdatedTranslations = [];
+const missingTranslations = [];
 
-function getLastModifiedTime(filePath) {
-    return fs.existsSync(filePath) ? fs.statSync(filePath).mtimeMs : 0;
-}
+function checkTranslations() {
+  const englishFiles = fs.readdirSync(path.join(referencePath, "en"));
 
-fs.readdirSync(ENGLISH_DIR).forEach(file => {
-    const englishFile = path.join(ENGLISH_DIR, file);
-    const englishUpdatedTime = getLastModifiedTime(englishFile);
+  languages.forEach((lang) => {
+    const langPath = path.join(referencePath, lang);
+    if (!fs.existsSync(langPath)) {
+      console.log(`🚨 Missing translation folder: ${langPath}`);
+      return;
+    }
 
-    LANGUAGES.forEach(lang => {
-        const langFile = path.join("src/content/reference", lang, file);
-        
-        if (!fs.existsSync(langFile)) {
-            missingTranslations.push(langFile);
-        } else {
-            const langUpdatedTime = getLastModifiedTime(langFile);
-            if (langUpdatedTime < englishUpdatedTime) {
-                outdatedTranslations.push(langFile);
-            }
+    englishFiles.forEach((file) => {
+      const englishFilePath = path.join(referencePath, "en", file);
+      const langFilePath = path.join(referencePath, lang, file);
+
+      if (!fs.existsSync(langFilePath)) {
+        missingTranslations.push(`${langFilePath}`);
+      } else {
+        const enContent = fs.readFileSync(englishFilePath, "utf8").trim();
+        const langContent = fs.readFileSync(langFilePath, "utf8").trim();
+
+        if (enContent !== langContent) {
+          outdatedTranslations.push(`${langFilePath}`);
         }
+      }
     });
-});
+  });
 
-if (missingTranslations.length === 0 && outdatedTranslations.length === 0) {
-    console.log("✅ All translations are up to date!");
-    process.exit(0);
+  if (outdatedTranslations.length > 0 || missingTranslations.length > 0) {
+    let issueContent = "## ⚠️ Outdated or Missing Translations Detected\n\n";
+
+    if (missingTranslations.length > 0) {
+      issueContent += "### 🚨 Missing Translations\n";
+      missingTranslations.forEach((file) => {
+        issueContent += `- ${file}\n`;
+      });
+    }
+
+    if (outdatedTranslations.length > 0) {
+      issueContent += "\n### 🔄 Outdated Translations\n";
+      outdatedTranslations.forEach((file) => {
+        issueContent += `- ${file}\n`;
+      });
+    }
+
+    fs.writeFileSync(".github/scripts/outdated_translations.md", issueContent);
+    console.log("✅ Issue content written to .github/scripts/outdated_translations.md");
+
+    process.exit(0); // 🔹 Exit with 0 to prevent GitHub Action failure
+  } else {
+    console.log("✅ All translations are up to date.");
+    process.exit(0); // Ensure success
+  }
 }
 
-let issueContent = "## ⚠️ Outdated/Missing Translations Detected\n\n";
-
-if (missingTranslations.length > 0) {
-    issueContent += "### ❌ Missing Translations\nThe following files are missing:\n";
-    missingTranslations.forEach(file => issueContent += `- \`${file}\`\n`);
-    issueContent += "\n";
-}
-
-if (outdatedTranslations.length > 0) {
-    issueContent += "### ⚠️ Outdated Translations\nThe following files need updates:\n";
-    outdatedTranslations.forEach(file => issueContent += `- \`${file}\`\n`);
-    issueContent += "\n";
-}
-
-fs.writeFileSync(".github/scripts/outdated_translations.md", issueContent);
-
-console.error(issueContent);
-process.exit(0);
+checkTranslations();
