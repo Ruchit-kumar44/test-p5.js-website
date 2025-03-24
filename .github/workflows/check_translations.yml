@@ -36,3 +36,16 @@ jobs:
           title: "⚠️ Outdated/Missing Translations Detected"
           content-filepath: .github/scripts/outdated_translations.md
           labels: "translation, help wanted"
+
+  respond_to_queries:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write  # Grant permission to comment on issues
+    steps:
+      - name: Auto-Reply Script
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const script = require('./.github/scripts/auto_reply.js');
+            script({ github, context });
