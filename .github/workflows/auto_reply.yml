@@ -1,0 +1,22 @@
+name: Auto-Reply to Translation Queries
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  respond_to_queries:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run auto-reply script
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const script = require('./.github/scripts/auto_reply.js');
+            await script({ github, context });
+
